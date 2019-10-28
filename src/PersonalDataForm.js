@@ -4,39 +4,41 @@ export default class PersonalDataForm extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            name: '',
+            fieldValues: {
+                name: '',
                 nickName: '',
                 email: '',
                 field: '',
                 position: '',
+            },
             fieldRequired: {
-                    name: true,
-                    nickName: false,
-                    email: true,
-                    field: true,
-                    position: true,
-                },
-                fieldTouched:{
-                    name: false,
-                    nickName: false,
-                    email: false,
-                    field: false,
-                    position: false,
-                },
-                fieldValid:{
-                    name: false,
-                    nickName: true,
-                    email: false,
-                    field: false,
-                    position: false,
-                },
-                errorMsgs: {
-                    name: 'Please fill in your name',
-                    nickName: '',
-                    email: 'Please use a correct e-mail address',
-                    field: 'Please choose your field',
-                    position: 'Please choose your position',
-                },
+                name: true,
+                nickName: false,
+                email: true,
+                field: true,
+                position: true,
+            },
+            fieldTouched:{
+                name: false,
+                nickName: false,
+                email: false,
+                field: false,
+                position: false,
+            },
+            fieldValid:{
+                name: false,
+                nickName: true,
+                email: false,
+                field: false,
+                position: false,
+            },
+            errorMsgs: {
+                name: 'Please fill in your name',
+                nickName: '',
+                email: 'Please use a correct e-mail address',
+                field: 'Please choose your field',
+                position: 'Please choose your position',
+            },
         }
         this.validateField = this.validateField.bind(this);
         this.updateState = this.updateState.bind(this);
@@ -44,12 +46,19 @@ export default class PersonalDataForm extends React.Component {
     }
     
     
-    updateState (name, value) {
-        this.setState(prevState => ({[name]: value}))
+    updateState (e) {
+        const {name, value} = e.target;
+        this.setState(prevState => ({
+            fieldValues: {
+                ...prevState.fieldValues,
+                        [name]: value
+            }
+        }))
+        this.validateField(name, value)
+        
     }
     
-    validateField = (e) => {
-        const {name, value} = e.target;
+    validateField = (name, value) => {
         const config = {
             
                 validationRules: {
@@ -71,7 +80,6 @@ export default class PersonalDataForm extends React.Component {
             
             
             if(config.validationRules[name]){
-                console.log('valid');
 
                 this.setState(prevState => ({
                     fieldValid: { 
@@ -79,10 +87,8 @@ export default class PersonalDataForm extends React.Component {
                         [name]: true
                     }
                 }))
-                //this.updateState(name, value);
                 
             } else {
-                console.log('invalid');
                 
                  this.setState(prevState => ({
                     fieldValid: { 
@@ -95,17 +101,26 @@ export default class PersonalDataForm extends React.Component {
             
         }
         
-        this.updateState(name, value);
+    }
+    
+    validateAllFields = () => {
         
+        Object.entries(this.state.fieldValues).forEach(
+            ([key, value]) => this.validateField(key, value)
+        )
+    }
+    submitPersonalDataForm = (e) => {
+        e.preventDefault();
+        this.validateAllFields()
     }
     
     switchSelects () {
-        switch(this.state.field){
+        switch(this.state.fieldValues.field){
             case  'IT':
                 return (
                     
-                        <select name="position" id="position" onChange={this.validateField}>
-                            <option value="">{this.state.position ? 'Go back to Field' : 'Position'}</option>
+                        <select name="position" id="position" onChange={this.updateState}>
+                            <option value="">{this.state.fieldValues.position ? 'Go back to Field' : 'Position'}</option>
                             <option value="Front-end developer">Front-end developer</option>
                             <option value="Back-end developer">Back-end developer</option>
                             <option value="DevOps">DevOps</option>
@@ -115,8 +130,8 @@ export default class PersonalDataForm extends React.Component {
                 );
             case 'Product':
                 return (
-                        <select name="position" id="position" onChange={this.validateField}>
-                            <option value="">{this.state.position ? 'Go back to Field' : 'Position'}</option>
+                        <select name="position" id="position" onChange={this.updateState}>
+                            <option value="">{this.state.fieldValues.position ? 'Go back to Field' : 'Position'}</option>
                             <option value="Product Owner">Product Owner</option>
                             <option value="UX Designer">UX Designer</option>
                             <option value="UI Designer">UI Designer</option>
@@ -125,8 +140,8 @@ export default class PersonalDataForm extends React.Component {
                 );
              case 'Content':
                 return (
-                        <select name="position" id="position" onChange={this.validateField}>
-                            <option value="">{this.state.position ? 'Go back to Field' : 'Position'}</option>
+                        <select name="position" id="position" onChange={this.updateState}>
+                            <option value="">{this.state.fieldValues.position ? 'Go back to Field' : 'Position'}</option>
                             <option value="Junior Copywriter">Junior Copywriter</option>
                             <option value="Senior Copywriter">Senior Copywriter</option>
                         </select>
@@ -140,14 +155,14 @@ export default class PersonalDataForm extends React.Component {
     render() {
         return (
             <div>
-                <form action="" id="personal-data-form">
+                <form action="" id="personal-data-form" onSubmit={this.submitPersonalDataForm} noValidate>
                     <div className={'row ' 
                                     + (this.state.fieldRequired.name && this.state.fieldTouched.name ?
                                         (this.state.fieldValid.name ? 
                                             'success' : 'error')
                                        : '')}>
                                        
-                        <input name="name" type="text" noValidate onBlur={this.validateField}/>
+                        <input name="name" type="text" noValidate onBlur={this.updateState}/>
                         <label htmlFor="name">Name</label>
                         
                         {this.state.fieldRequired.name
@@ -163,7 +178,7 @@ export default class PersonalDataForm extends React.Component {
                                                 'success' : 'error')
                                            : '')}>
                                
-                        <input name="nickName" type="text" noValidate onBlur={this.validateField}/>
+                        <input name="nickName" type="text" noValidate onBlur={this.updateState}/>
                         <label htmlFor="nickName">Nickname</label>
                         
                         {this.state.fieldRequired.nickName 
@@ -178,7 +193,7 @@ export default class PersonalDataForm extends React.Component {
                                                 'success' : 'error')
                                            : '')}>
                                
-                        <input name="email" type="email" noValidate onBlur={this.validateField}/>
+                        <input name="email" type="email" noValidate onBlur={this.updateState}/>
                         <label htmlFor="email">E-mail</label>
                         
                         {this.state.fieldRequired.email
@@ -193,7 +208,7 @@ export default class PersonalDataForm extends React.Component {
                                                 'success' : 'error')
                                            : '')}>
                                            
-                        <select name="field" id="field" onChange={this.validateField} disabled={this.state.position !== ''}>
+                        <select name="field" id="field" onChange={this.updateState} disabled={this.state.fieldValues.position !== ''}>
                             <option value="">Field</option>
                             <option value="IT">IT</option>
                             <option value="Product">Product</option>
@@ -208,8 +223,8 @@ export default class PersonalDataForm extends React.Component {
                     </div>
                     
                     <div className={'row ' 
-                                        + (this.state.fieldRequired.field && this.state.fieldTouched.field ?
-                                            (this.state.fieldValid.field ?
+                                        + (this.state.fieldRequired.position && this.state.fieldTouched.position ?
+                                            (this.state.fieldValid.position ?
                                                 'success' : 'error')
                                            : '')}>
                                            
@@ -222,16 +237,16 @@ export default class PersonalDataForm extends React.Component {
                          
                     </div>
                     
-                    <input id="submit-button" type="submit" value="Submit" />
+                    <input id="submit-button" type="submit" value="Submit"/>
                 </form>
                 
                 
                 <ol>
-                    <li>Name: {this.state.name}</li>
-                    <li>Nickname: {this.state.nickName}</li>
-                    <li>E-mail: {this.state.email}</li>
-                    <li>Field: {this.state.field}</li>
-                    <li>Position: {this.state.position}</li>
+                    <li>Name: {this.state.fieldValues.name}</li>
+                    <li>Nickname: {this.state.fieldValues.nickName}</li>
+                    <li>E-mail: {this.state.fieldValues.email}</li>
+                    <li>Field: {this.state.fieldValues.field}</li>
+                    <li>Position: {this.state.fieldValues.position}</li>
                 </ol>
             </div>
             
