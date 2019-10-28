@@ -18,13 +18,21 @@ export default class PersonalDataForm extends React.Component {
                 },
                 fieldValid:{
                     name: false,
-                    nickName: false,
+                    nickName: true,
                     email: false,
                     field: false,
                     position: false,
-                }
+                },
+                errorMsgs: {
+                    name: 'Please fill in your name',
+                    nickName: '',
+                    email: 'Please use a correct e-mail address',
+                    field: 'Please choose your field',
+                    position: 'Please choose your position',
+                },
         }
         this.validateField = this.validateField.bind(this);
+        this.updateState = this.updateState.bind(this);
         this.switchSelects = this.switchSelects.bind(this);
     }
     
@@ -42,13 +50,6 @@ export default class PersonalDataForm extends React.Component {
                     email: true,
                     field: true,
                     position: true,
-                },
-                errorMsgs: {
-                    name: 'Please fill in your name',
-                    nickName: '',
-                    email: 'Please use a correct e-mail address',
-                    field: 'Please choose your field',
-                    position: 'Please choose your position',
                 },
                 validationRules: {
                     name:  value.trim().length, //most basic validation rule. checks if there's anything typed in the field
@@ -141,14 +142,17 @@ export default class PersonalDataForm extends React.Component {
                     <div className={this.state.fieldTouched.name ? (this.state.fieldValid.name ? 'row success' : 'row error'): 'row'}>
                         <input name="name" type="text" noValidate onBlur={this.validateField}/>
                         <label htmlFor="name">Name</label>
+                        {this.state.fieldTouched.name && !this.state.fieldValid.name && <div className="error-message">{this.state.errorMsgs.name}</div>}
                     </div>
-                    <div className={this.state.fieldTouched.nickName ? (this.state.fieldValid.nickName ? 'row success' : 'row error'): 'row'}>
+                    <div className={this.state.fieldTouched.name ? (this.state.fieldValid.name ? 'row success' : 'row error'): 'row'}>
                         <input name="nickName" type="text" noValidate onBlur={this.validateField}/>
                         <label htmlFor="nickName">Nickname</label>
+                        {this.state.fieldTouched.nickName && !this.state.fieldValid.nickName && <div className="error-message">{this.state.errorMsgs.nickName}</div>}
                     </div>
                     <div className={this.state.fieldTouched.email ? (this.state.fieldValid.email ? 'row success' : 'row error'): 'row'}>
                         <input name="email" type="email" noValidate onBlur={this.validateField}/>
                         <label htmlFor="email">E-mail</label>
+                        {this.state.fieldTouched.email && !this.state.fieldValid.email && <div className="error-message">{this.state.errorMsgs.email}</div>}
                     </div>
                     <div className={this.state.fieldTouched.field ? (this.state.fieldValid.field ? 'row success' : 'row error'): 'row'}>
                         <select name="field" id="field" onChange={this.validateField} disabled={this.state.position !== ''}>
@@ -157,9 +161,11 @@ export default class PersonalDataForm extends React.Component {
                             <option value="Product">Product</option>
                             <option value="Content">Content</option>
                         </select>
+                        {this.state.fieldTouched.field && !this.state.fieldValid.field && <div className="error-message">{this.state.errorMsgs.field}</div>}
                     </div>
                     <div className={this.state.fieldTouched.position ? (this.state.fieldValid.position ? 'row success' : 'row error'): 'row'}>
                         {this.switchSelects()}
+                        {this.state.fieldTouched.position && !this.state.fieldValid.position && <div className="error-message">{this.state.errorMsgs.position}</div>}
                     </div>
                     
                     
