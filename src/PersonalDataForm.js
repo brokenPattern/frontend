@@ -104,14 +104,27 @@ export default class PersonalDataForm extends React.Component {
     }
     
     validateAllFields = () => {
-        
+        let valid;
         Object.entries(this.state.fieldValues).forEach(
             ([key, value]) => this.validateField(key, value)
         )
+        Object.entries(this.state.fieldValid).forEach(
+            ([key, value]) => {if (value === false){
+                valid = false
+            } else {
+                valid = true
+            }
+        }
+        )
+        return valid;
     }
     submitPersonalDataForm = (e) => {
         e.preventDefault();
-        this.validateAllFields()
+        if(this.validateAllFields()){
+            alert("good form")
+        } else {
+            alert("bad form")
+        }
     }
     
     switchSelects () {
