@@ -4,6 +4,7 @@ export default class PersonalDataForm extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
+            formSent: false,
             fieldValues: {
                 name: '',
                 nickName: '',
@@ -40,9 +41,6 @@ export default class PersonalDataForm extends React.Component {
                 position: 'Please choose your position',
             },
         }
-        this.validateField = this.validateField.bind(this);
-        this.updateState = this.updateState.bind(this);
-        this.switchSelects = this.switchSelects.bind(this);
     }
     
     
@@ -103,27 +101,40 @@ export default class PersonalDataForm extends React.Component {
         
     }
     
-    validateAllFields = () => {
-        let valid;
+    validateAllFields = () =>{
+        let valid = true;
         Object.entries(this.state.fieldValues).forEach(
             ([key, value]) => this.validateField(key, value)
         )
         Object.entries(this.state.fieldValid).forEach(
             ([key, value]) => {if (value === false){
                 valid = false
-            } else {
-                valid = true
             }
         }
         )
         return valid;
     }
+    
+    saveToLocalStorage = () => {
+        window.localStorage.setItem('PDFUser', JSON.stringify(this.state.fieldValues));
+    }
+    
+    openResults = (e) => {
+        const personalDataWindow = window.open("", "PersonalDataFormResults")
+        let userData = JSON.parse(window.localStorage.getItem('PDFUser'));
+        let message = "<ol>From Local Storage:<li>Name: "+userData.name+"</li><li>Nickname: "+userData.nickName+"</li><li>E-mail: "+userData.email+"</li><li>Field: "+userData.field+"</li><li>Position: "+userData.position+"</li></ol>";
+       personalDataWindow.document.body.innerHTML = message;
+        
+    }
+    
+    
     submitPersonalDataForm = (e) => {
         e.preventDefault();
         if(this.validateAllFields()){
-            alert("good form")
-        } else {
-            alert("bad form")
+            this.setState(prevState => ({
+                    formSent: true
+                }))
+            this.saveToLocalStorage()
         }
     }
     
@@ -166,105 +177,121 @@ export default class PersonalDataForm extends React.Component {
     }
     
     render() {
-        return (
-            <div>
-                <form action="" id="personal-data-form" onSubmit={this.submitPersonalDataForm} noValidate>
-                    <div className={'row ' 
-                                    + (this.state.fieldRequired.name && this.state.fieldTouched.name ?
-                                        (this.state.fieldValid.name ? 
-                                            'success' : 'error')
-                                       : '')}>
-                                       
-                        <input name="name" type="text" noValidate onBlur={this.updateState}/>
-                        <label htmlFor="name">Name</label>
-                        
-                        {this.state.fieldRequired.name
-                         && this.state.fieldTouched.name 
-                         && !this.state.fieldValid.name 
-                         && <div className="error-message">{this.state.errorMsgs.name}</div>}
-                         
-                    </div>
-                    
-                    <div className={'row '
-                                        + (this.state.fieldRequired.nickName && this.state.fieldTouched.nickName ? 
-                                            (this.state.fieldValid.nickName ?
-                                                'success' : 'error')
-                                           : '')}>
-                               
-                        <input name="nickName" type="text" noValidate onBlur={this.updateState}/>
-                        <label htmlFor="nickName">Nickname</label>
-                        
-                        {this.state.fieldRequired.nickName 
-                         && this.state.fieldTouched.nickName 
-                         && !this.state.fieldValid.nickName 
-                         && <div className="error-message">{this.state.errorMsgs.nickName}</div>}
-                    </div>
-                    
-                    <div className={'row '
-                                        + (this.state.fieldRequired.email && this.state.fieldTouched.email ?
-                                            (this.state.fieldValid.email ?
-                                                'success' : 'error')
-                                           : '')}>
-                               
-                        <input name="email" type="email" noValidate onBlur={this.updateState}/>
-                        <label htmlFor="email">E-mail</label>
-                        
-                        {this.state.fieldRequired.email
-                         && this.state.fieldTouched.email 
-                         && !this.state.fieldValid.email 
-                         && <div className="error-message">{this.state.errorMsgs.email}</div>}
-                         
-                    </div>
-                    <div className={'row '
-                                        + (this.state.fieldRequired.field && this.state.fieldTouched.field ? 
-                                            (this.state.fieldValid.field ?
-                                                'success' : 'error')
-                                           : '')}>
-                                           
-                        <select name="field" id="field" onChange={this.updateState} disabled={this.state.fieldValues.position !== ''}>
-                            <option value="">Field</option>
-                            <option value="IT">IT</option>
-                            <option value="Product">Product</option>
-                            <option value="Content">Content</option>
-                        </select>
-                        
-                        {this.state.fieldRequired.field 
-                         && this.state.fieldTouched.field 
-                         && !this.state.fieldValid.field 
-                         && <div className="error-message">{this.state.errorMsgs.field}</div>}
-                         
-                    </div>
-                    
-                    <div className={'row ' 
-                                        + (this.state.fieldRequired.position && this.state.fieldTouched.position ?
-                                            (this.state.fieldValid.position ?
-                                                'success' : 'error')
-                                           : '')}>
-                                           
-                        {this.switchSelects()}
-                        
-                        {this.state.fieldRequired.position 
-                         && this.state.fieldTouched.position 
-                         && !this.state.fieldValid.position 
-                         && <div className="error-message">{this.state.errorMsgs.position}</div>}
-                         
-                    </div>
-                    
-                    <input id="submit-button" type="submit" value="Submit"/>
-                </form>
-                
-                
-                <ol>
+        if (this.state.formSent) {
+            
+            return (
+                <><ol>
                     <li>Name: {this.state.fieldValues.name}</li>
                     <li>Nickname: {this.state.fieldValues.nickName}</li>
                     <li>E-mail: {this.state.fieldValues.email}</li>
                     <li>Field: {this.state.fieldValues.field}</li>
                     <li>Position: {this.state.fieldValues.position}</li>
                 </ol>
-            </div>
+                <button onClick={this.openResults}>view results in new Tab (Local Storage)</button></>
+            )
             
+        } else {
             
+            return (
+                <>
+                    <form action="" id="personal-data-form" onSubmit={this.submitPersonalDataForm} noValidate>
+                        <div className={'row ' 
+                                        + (this.state.fieldRequired.name && this.state.fieldTouched.name ?
+                                            (this.state.fieldValid.name ? 
+                                                'success' : 'error')
+                                           : '')}>
 
-        )
+                            <input name="name" type="text" noValidate onBlur={this.updateState}/>
+                            <label htmlFor="name">Name</label>
+
+                            {this.state.fieldRequired.name
+                             && this.state.fieldTouched.name 
+                             && !this.state.fieldValid.name 
+                             && <div className="error-message">{this.state.errorMsgs.name}</div>}
+
+                        </div>
+
+                        <div className={'row '
+                                            + (this.state.fieldRequired.nickName && this.state.fieldTouched.nickName ? 
+                                                (this.state.fieldValid.nickName ?
+                                                    'success' : 'error')
+                                               : '')}>
+
+                            <input name="nickName" type="text" noValidate onBlur={this.updateState}/>
+                            <label htmlFor="nickName">Nickname</label>
+
+                            {this.state.fieldRequired.nickName 
+                             && this.state.fieldTouched.nickName 
+                             && !this.state.fieldValid.nickName 
+                             && <div className="error-message">{this.state.errorMsgs.nickName}</div>}
+                        </div>
+
+                        <div className={'row '
+                                            + (this.state.fieldRequired.email && this.state.fieldTouched.email ?
+                                                (this.state.fieldValid.email ?
+                                                    'success' : 'error')
+                                               : '')}>
+
+                            <input name="email" type="email" noValidate onBlur={this.updateState}/>
+                            <label htmlFor="email">E-mail</label>
+
+                            {this.state.fieldRequired.email
+                             && this.state.fieldTouched.email 
+                             && !this.state.fieldValid.email 
+                             && <div className="error-message">{this.state.errorMsgs.email}</div>}
+
+                        </div>
+                        <div className={'row '
+                                            + (this.state.fieldRequired.field && this.state.fieldTouched.field ? 
+                                                (this.state.fieldValid.field ?
+                                                    'success' : 'error')
+                                               : '')}>
+
+                            <select name="field" id="field" onChange={this.updateState} disabled={this.state.fieldValues.position !== ''}>
+                                <option value="">Field</option>
+                                <option value="IT">IT</option>
+                                <option value="Product">Product</option>
+                                <option value="Content">Content</option>
+                            </select>
+
+                            {this.state.fieldRequired.field 
+                             && this.state.fieldTouched.field 
+                             && !this.state.fieldValid.field 
+                             && <div className="error-message">{this.state.errorMsgs.field}</div>}
+
+                        </div>
+
+                        <div className={'row ' 
+                                            + (this.state.fieldRequired.position && this.state.fieldTouched.position ?
+                                                (this.state.fieldValid.position ?
+                                                    'success' : 'error')
+                                               : '')}>
+
+                            {this.switchSelects()}
+
+                            {this.state.fieldRequired.position 
+                             && this.state.fieldTouched.position 
+                             && !this.state.fieldValid.position 
+                             && <div className="error-message">{this.state.errorMsgs.position}</div>}
+
+                        </div>
+
+                        <input id="submit-button" type="submit" value="Submit"/>
+                    </form>
+
+
+                    <ol>
+                        <li>Name: {this.state.fieldValues.name}</li>
+                        <li>Nickname: {this.state.fieldValues.nickName}</li>
+                        <li>E-mail: {this.state.fieldValues.email}</li>
+                        <li>Field: {this.state.fieldValues.field}</li>
+                        <li>Position: {this.state.fieldValues.position}</li>
+                    </ol>
+                </>
+
+
+
+            )
+        }
     }
 }
