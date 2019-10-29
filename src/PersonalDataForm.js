@@ -41,6 +41,9 @@ export default class PersonalDataForm extends React.Component {
                 position: 'Please choose your position',
             },
         }
+        this.validateField = this.validateField.bind(this);
+        this.updateState = this.updateState.bind(this);
+        this.switchSelects = this.switchSelects.bind(this);
     }
     
     
@@ -180,20 +183,20 @@ export default class PersonalDataForm extends React.Component {
         if (this.state.formSent) {
             
             return (
-                <><ol>
+                <div id="form-helper"><ol>
                     <li>Name: {this.state.fieldValues.name}</li>
                     <li>Nickname: {this.state.fieldValues.nickName}</li>
                     <li>E-mail: {this.state.fieldValues.email}</li>
                     <li>Field: {this.state.fieldValues.field}</li>
                     <li>Position: {this.state.fieldValues.position}</li>
                 </ol>
-                <button onClick={this.openResults}>view results in new Tab (Local Storage)</button></>
+                <button onClick={this.openResults}>view results in new Tab (Local Storage)</button></div>
             )
             
         } else {
             
             return (
-                <>
+                <div id="form-helper">
                     <form action="" id="personal-data-form" onSubmit={this.submitPersonalDataForm} noValidate>
                         <div className={'row ' 
                                         + (this.state.fieldRequired.name && this.state.fieldTouched.name ?
@@ -202,7 +205,7 @@ export default class PersonalDataForm extends React.Component {
                                            : '')}>
 
                             <input name="name" type="text" noValidate onBlur={this.updateState}/>
-                            <label htmlFor="name">Name</label>
+                            <label className={this.state.fieldValues.name && 'filled'} htmlFor="name">Name</label>
 
                             {this.state.fieldRequired.name
                              && this.state.fieldTouched.name 
@@ -218,7 +221,7 @@ export default class PersonalDataForm extends React.Component {
                                                : '')}>
 
                             <input name="nickName" type="text" noValidate onBlur={this.updateState}/>
-                            <label htmlFor="nickName">Nickname</label>
+                            <label className={this.state.fieldValues.nickName && 'filled'} htmlFor="nickName">Nickname</label>
 
                             {this.state.fieldRequired.nickName 
                              && this.state.fieldTouched.nickName 
@@ -233,7 +236,7 @@ export default class PersonalDataForm extends React.Component {
                                                : '')}>
 
                             <input name="email" type="email" noValidate onBlur={this.updateState}/>
-                            <label htmlFor="email">E-mail</label>
+                            <label className={this.state.fieldValues.email && 'filled'} htmlFor="email">E-mail</label>
 
                             {this.state.fieldRequired.email
                              && this.state.fieldTouched.email 
@@ -260,7 +263,7 @@ export default class PersonalDataForm extends React.Component {
                              && <div className="error-message">{this.state.errorMsgs.field}</div>}
 
                         </div>
-
+                        {this.state.fieldValues.field && 
                         <div className={'row ' 
                                             + (this.state.fieldRequired.position && this.state.fieldTouched.position ?
                                                 (this.state.fieldValid.position ?
@@ -275,6 +278,7 @@ export default class PersonalDataForm extends React.Component {
                              && <div className="error-message">{this.state.errorMsgs.position}</div>}
 
                         </div>
+                            }
 
                         <input id="submit-button" type="submit" value="Submit"/>
                     </form>
@@ -287,7 +291,7 @@ export default class PersonalDataForm extends React.Component {
                         <li>Field: {this.state.fieldValues.field}</li>
                         <li>Position: {this.state.fieldValues.position}</li>
                     </ol>
-                </>
+                </div>
 
 
 
